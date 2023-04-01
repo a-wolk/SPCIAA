@@ -6,12 +6,17 @@ np.set_printoptions(threshold=sys.maxsize)
 
 def calculate_wave(i, j, u_t_1, u_t_2, b_t, t, C, g=9.81):
     h = 10/u_t_1.shape[0]
-    X_1 = ((u_t_1[i+1, j] - u_t_1[i-1, j]) / 2*h)**2
+    dudx = ((u_t_1[i+1, j] - u_t_1[i-1, j]) / 2*h)
+    dudy = ((u_t_1[i, j+1] - u_t_1[i, j-1]) / 2*h)
+    dbdx = ((u_t_1[i+1, j] - u_t_1[i-1, j]) / 2*h)
+    dbdy = ((u_t_1[i, j+1] - u_t_1[i, j-1]) / 2*h)
+
+    X_1 = (dudx - dbdx)*dudx
     X_2 = (u_t_1[i, j] - b_t[i, j]) * (
         (u_t_1[i+1, j]-2*u_t_1[i, j]+ u_t_1[i-1, j]) / h**2
     )
-    X_3 = ((u_t_1[i, j+1] - u_t_1[i, j-1]) / 2*h)**2
-    X_4 = (u_t_1[i, j] - b_t[i, j]) * (
+    X_3 = (dudy - dbdy)*dudy
+    X_4 = (u_t_1[i, j] - b_t[i, j])* (
         (u_t_1[i, j+1]-2*u_t_1[i, j]+ u_t_1[i, j-1]) / h**2
     )
 
@@ -63,13 +68,12 @@ def wave_simulation(size, center, iterations, t, C, b_t=None, water_lvl=2):
         u_t_1, u_t_2 = wave_step(center, u_t_1, u_t_2, b_t, t, C)
 
         if i % 10 == 0:
-          # plt.figure()
-          # plt.imshow(u_t_1)
+          #plt.figure()
+          #plt.imshow(u_t_1)
           
-          # plt.colorbar()
-          # display.clear_output(wait=True)
-          # display.display(pl.gcf())
-
+          #plt.colorbar()
+          #display.clear_output(wait=True)
+          #display.display(pl.gcf())
           np.save(f"out_{i}.data", u_t_1)
         
     return u_t_1
